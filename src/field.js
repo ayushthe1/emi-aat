@@ -54,60 +54,50 @@ const ElectricFieldCalculator = () => {
 
 
   const calculateElectricField = () => {
-    // Implement your electric field calculation logic here...
-    const k = 9*Math.pow(10,9)
-
-    // Example calculation
-    let totalField=0.00
-    let totalPotential=0.00
-    let xdir=0
-    let ydir=0
-    let zdir=0
+    const k = 9 * Math.pow(10, 9);
+    const permitivity = 8.85 * Math.pow(10, -12);
+  
+    let totalField = { x: 0, y: 0, z: 0 };
+    let totalPotential = 0;
+  
     pointCharges.forEach((charge) => {
-      // ... (calculation using Coulomb's Law)
-        let distanceSq = Math.pow(charge.x - pointP.x,2) + Math.pow(charge.y - pointP.y,2) + Math.pow(charge.z - pointP.z,2)
-        let field = (k*charge.charge)/distanceSq
-        // totalField+=field
-        xdir += field*charge.x
-        ydir += field*charge.y
-        zdir += field*charge.z
-
-
-      let potential = (k*charge.charge)/Math.sqrt(distanceSq)
-      totalPotential+= potential
-    
+      let distanceSq = Math.pow(charge.x - pointP.x, 2) + Math.pow(charge.y - pointP.y, 2) + Math.pow(charge.z - pointP.z, 2);
+      let distance = Math.sqrt(distanceSq);
+  
+      let field = (k * charge.charge) / (distanceSq*distance);
+  
+      totalField.x += (field * (charge.x - pointP.x)) / distance;
+      totalField.y += (field * (charge.y - pointP.y)) / distance;
+      totalField.z += (field * (charge.z - pointP.z)) / distance;
+  
+      totalPotential += k * charge.charge / distance;
+    });
+  
+    surfaceCharge.forEach((surface) => {
+      let xcoef = surface.xcoef;
+      let ycoef = surface.ycoef;
+      let zcoef = surface.zcoef;
+      let chargeDensity = surface.chargeDensity;
+      let n_mag = Math.sqrt(Math.pow(xcoef, 2) + Math.pow(ycoef, 2) + Math.pow(zcoef, 2));
+  
+      let field = chargeDensity / (2 * permitivity * n_mag);
+  
+      totalField.x += field * xcoef;
+      totalField.y += field * ycoef;
+      totalField.z += field * zcoef;
+  
+      totalPotential += (k * chargeDensity) / n_mag;
     });
     
-
-    let permitivity = 8.85 *Math.pow(10, -12)
-    surfaceCharge.forEach((surface) => {
-      let xcoef = surface.xcoef
-      let ycoef = surface.ycoef
-      let zcoef = surface.zcoef
-      let chargeDensity = surface.chargeDensity
-      let n_mag = Math.pow(xcoef, 2)+Math.pow(ycoef,2)+Math.pow(zcoef, 2)
-      n_mag = Math.sqrt(n_mag)
-
-      let field = chargeDensity/(2*permitivity*n_mag)
-      
-      xdir += field*xcoef
-      ydir += field*ycoef
-      zdir += field*zcoef 
-      totalPotential += 2*3.14*k*chargeDensity   
-    })
-
-    
-
-    totalField += Math.pow(xdir,2) + Math.pow(ydir,2) + Math.pow(zdir, 2)
-    totalField = Math.sqrt(totalField, 2)
-
-    setelectricPotential(totalPotential)
-  
+    let netField = Math.sqrt(Math.pow(totalField.x, 2) + Math.pow(totalField.y, 2) + Math.pow(totalField.z, 2))
     setElectricField((prevElectricField) => ({
-        ...prevElectricField,
-        netField: totalField,
-      }));
+      ...prevElectricField,
+      netField: netField,
+    }));
+  
+    setelectricPotential(totalPotential);
   };
+  
 
   // Render functions for point charges and point P with error handling
   const renderPointCharges = () => {
