@@ -86,7 +86,7 @@ const ElectricFieldCalculator = () => {
       totalField.y += field * ycoef;
       totalField.z += field * zcoef;
   
-      totalPotential += (k * chargeDensity) / n_mag;
+      totalPotential += 2*3.14*k * chargeDensity
     });
     
     let netField = Math.sqrt(Math.pow(totalField.x, 2) + Math.pow(totalField.y, 2) + Math.pow(totalField.z, 2))
