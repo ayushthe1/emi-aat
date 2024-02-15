@@ -66,9 +66,9 @@ const ElectricFieldCalculator = () => {
   
       let field = (k * charge.charge) / (distanceSq*distance);
   
-      totalField.x += (field * (charge.x - pointP.x)) / distance;
-      totalField.y += (field * (charge.y - pointP.y)) / distance;
-      totalField.z += (field * (charge.z - pointP.z)) / distance;
+      totalField.x += (field * (pointP.x - charge.x)) // x component
+      totalField.y += (field * (pointP.y-charge.y)) // y component
+      totalField.z += (field * (pointP.z - charge.z)) // z component
   
       totalPotential += k * charge.charge / distance;
     });
